@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Report a Level 2</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="top-banner">
+    <h1>Report a Level 2</h1>
+  </header>
+
+  <main class="app-container">
+    <!-- Left Panel: Teachers -->
+    <section class="panel" id="panel-teachers">
+      <h2>Select Classroom Teacher</h2>
+      <div id="teacher-list" class="scrollable-list">
+        <p class="status-msg">Loading teachers...</p>
+      </div>
+    </section>
+
+    <!-- Center Panel: Students -->
+    <section class="panel disabled" id="panel-students">
+      <h2>Choose Student</h2>
+      <div id="student-grid" class="student-grid">
+        <p class="placeholder-text">Please select a teacher first.</p>
+      </div>
+    </section>
+
+    <!-- Right Panel: Location & Action -->
+    <section class="panel disabled" id="panel-location">
+      <h2>Provide location</h2>
+      
+      <div class="location-container">
+        <label for="location-select">Location</label>
+        <div class="select-wrapper">
+          <select id="location-select">
+            <!-- Options populated dynamically -->
+          </select>
+        </div>
+        
+        <div id="other-location-wrapper" class="hidden">
+          <label for="other-location-input">Specify Other Location:</label>
+          <input type="text" id="other-location-input" placeholder="Enter location details..." />
+        </div>
+      </div>
+
+      <button id="send-alert-btn" class="alert-btn" disabled>SEND LEVEL 2 ALERT</button>
+      <div id="alert-status" class="status-msg"></div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
