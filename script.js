@@ -1,7 +1,7 @@
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzvbWNgg871SEProfX4IW7r1TcisOv7y1gVDQkPjWO83VQGkcQ9Xa1kp6ccREy2qieD69shDCtoySo/pub?gid=0&single=true&output=csv';
 
 // Replace with your Google Apps Script Web App URL once created
-const GOOGLE_APPS_SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTx9Muq-7xqB7dvMT75xQ68ABx2Vb0-PJuGggPWG_rVbxYUP2QiX_iDThQg-ZBkTRc/exec';
 
 let studentData = [];
 let selectedTeacher = null;
