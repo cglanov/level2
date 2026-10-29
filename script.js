@@ -1,7 +1,10 @@
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzvbWNgg871SEProfX4IW7r1TcisOv7y1gVDQkPjWO83VQGkcQ9Xa1kp6ccREy2qieD69shDCtoySo/pub?gid=0&single=true&output=csv';
 
-// Replace with your Google Apps Script Web App URL once created
+// Google Apps Script Web App URL for updating the Google Spreadsheet
 const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxJi5fstpdPXgRx45hU2MGV7OoZ-SAqdWKpVS4rp6V4_dkVRvH6ua8bC9tSM3ZH3PTY/exec';
+
+// Google Apps Script Web App URL for sending email notifications (aaeealert@gmail.com)
+const EMAIL_APPS_SCRIPT_URL = 'YOUR_EMAIL_APPS_SCRIPT_URL_HERE';
 
 let studentData = [];
 let selectedTeacher = null;
@@ -230,16 +233,33 @@ sendAlertBtn.addEventListener('click', async () => {
   alertStatusEl.textContent = 'Sending Level 2 Alert...';
 
   try {
-    if (GOOGLE_APPS_SCRIPT_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
-      await fetch(GOOGLE_APPS_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(alertPayload)
-      });
-    } else {
-      console.log('Payload ready for Apps Script:', alertPayload);
+    const requests = [];
+
+    // Request 1: Update Spreadsheet
+    if (GOOGLE_APPS_SCRIPT_URL && GOOGLE_APPS_SCRIPT_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
+      requests.push(
+        fetch(GOOGLE_APPS_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify(alertPayload)
+        })
+      );
     }
+
+    // Request 2: Send Email Alert (aaeealert@gmail.com)
+    if (EMAIL_APPS_SCRIPT_URL && EMAIL_APPS_SCRIPT_URL !== 'YOUR_EMAIL_APPS_SCRIPT_URL_HERE') {
+      requests.push(
+        fetch(EMAIL_APPS_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify(alertPayload)
+        })
+      );
+    }
+
+    await Promise.all(requests);
 
     alertStatusEl.style.color = '#137333';
     alertStatusEl.textContent = 'Level 2 Alert Sent!';
