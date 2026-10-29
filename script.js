@@ -4,7 +4,7 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzvbWNgg871SEP
 const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxJi5fstpdPXgRx45hU2MGV7OoZ-SAqdWKpVS4rp6V4_dkVRvH6ua8bC9tSM3ZH3PTY/exec';
 
 // Google Apps Script Web App URL for sending email notifications (aaeealert@gmail.com)
-const EMAIL_APPS_SCRIPT_URL = 'YOUR_EMAIL_APPS_SCRIPT_URL_HERE';
+const EMAIL_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyT2PomSIybLL-WvdkZ8xlx82CK1VQfY0TO17yH8Bg91Nx3WfvIo-ZwNoTaXSdbonDn/exec';
 
 let studentData = [];
 let selectedTeacher = null;
