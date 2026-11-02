@@ -5,7 +5,7 @@ const EMAIL_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyT2PomSI
 let studentData = [];
 let selectedTeacher = null;
 let selectedStudent = null;
-let trackerPdfBytes = null; // Store PDF template
+let trackerPdfBytes = null;
 
 const teacherListEl = document.getElementById('teacher-list');
 const studentGridEl = document.getElementById('student-grid');
@@ -17,7 +17,6 @@ const otherLocationInput = document.getElementById('other-location-input');
 const sendAlertBtn = document.getElementById('send-alert-btn');
 const alertStatusEl = document.getElementById('alert-status');
 
-// Initialize App and load PDF Template
 document.addEventListener('DOMContentLoaded', () => {
   fetchStudentData();
   fetch('tracker.pdf')
@@ -120,19 +119,24 @@ function renderStudentGrid() {
   matchingStudents.forEach(row => {
     const colA = (row[0] || '').trim();
     const colB = (row[1] || '').trim();
+    const gradeLevel = (row[3] || '').trim(); // Extracting grade level from column D
+    
     const firstLetterB = colB.length > 0 ? colB.charAt(0).toUpperCase() : '';
     const buttonLabel = `${colA} ${firstLetterB}`.trim();
     const fullStudentName = `${colA} ${colB}`.trim();
+    
     const btn = document.createElement('button');
     btn.className = 'student-btn';
     btn.textContent = buttonLabel;
-    btn.addEventListener('click', () => selectStudent(fullStudentName, buttonLabel, btn));
+    
+    // Passing gradeLevel into the selectStudent function
+    btn.addEventListener('click', () => selectStudent(fullStudentName, buttonLabel, gradeLevel, btn));
     studentGridEl.appendChild(btn);
   });
 }
 
-function selectStudent(fullName, displayLabel, targetElement) {
-  selectedStudent = { fullName, displayLabel };
+function selectStudent(fullName, displayLabel, gradeLevel, targetElement) {
+  selectedStudent = { fullName, displayLabel, gradeLevel };
   document.querySelectorAll('.student-btn').forEach(el => el.classList.remove('selected'));
   targetElement.classList.add('selected');
   locationPanelEl.classList.remove('disabled');
@@ -206,8 +210,8 @@ sendAlertBtn.addEventListener('click', async () => {
     }
     await Promise.all(requests);
 
-    // Trigger PDF generation upon successful alert submission
-    await generateAndDownloadPDF(selectedTeacher, selectedStudent.fullName, locationValue);
+    // Pass the retrieved grade level and location strings to the PDF generator
+    await generateAndDownloadPDF(selectedTeacher, selectedStudent.fullName, selectedStudent.gradeLevel, locationValue);
 
     alertStatusEl.style.color = '#137333';
     alertStatusEl.textContent = 'Level 2 Alert Sent!';
@@ -223,8 +227,7 @@ sendAlertBtn.addEventListener('click', async () => {
   }
 });
 
-// PDF Generation ported to Vanilla JS
-async function generateAndDownloadPDF(teacherName, studentFullName, locationStr) {
+async function generateAndDownloadPDF(teacherName, studentFullName, gradeLevel, locationStr) {
   if (!trackerPdfBytes) {
     console.error("PDF template is missing or failed to load.");
     return;
@@ -236,6 +239,7 @@ async function generateAndDownloadPDF(teacherName, studentFullName, locationStr)
   const firstPage = pages[0];
   const { height } = firstPage.getSize();
 
+  // 7 text positions mapped to the layout
   const textPositions = [[176, 242], [191, 281], [505, 278], [643, 277], [261, 320], [576, 319], [223, 395]];
   const scale = 1.5;
 
@@ -251,14 +255,15 @@ async function generateAndDownloadPDF(teacherName, studentFullName, locationStr)
   const displayH = h % 12 || 12;
   const timeStr = `${String(displayH).padStart(2, '0')}:${String(m).padStart(2, '0')} ${ampm}`;
 
-  // Location maps to the 3rd index (previously reserved for gradeLevel)
+  // Mapping the texts directly to the 7 coordinates
   const texts = [
     'Aerospace Elementary',
     studentFullName,
-    locationStr, 
+    gradeLevel, 
     teacherName,
     dateStr,
-    timeStr
+    timeStr,
+    locationStr // Assigned to the final [223, 395] coordinate
   ];
 
   for (let i = 0; i < texts.length; i++) {
