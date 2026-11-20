@@ -17,12 +17,23 @@ const otherLocationInput = document.getElementById('other-location-input');
 const sendAlertBtn = document.getElementById('send-alert-btn');
 const alertStatusEl = document.getElementById('alert-status');
 
+function isMobileDevice() {
+  const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isIPadOS = navigator.maxTouchPoints > 1 && /Macintosh/i.test(navigator.userAgent);
+  const isSmallViewport = window.matchMedia('(max-width: 768px)').matches;
+  return isMobileUA || isIPadOS || isSmallViewport;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   fetchStudentData();
-  fetch('tracker.pdf')
-    .then(res => res.arrayBuffer())
-    .then(data => trackerPdfBytes = data)
-    .catch(err => console.error("Error loading PDF template:", err));
+
+  // Only preload the PDF template on desktop browsers
+  if (!isMobileDevice()) {
+    fetch('tracker.pdf')
+      .then(res => res.arrayBuffer())
+      .then(data => trackerPdfBytes = data)
+      .catch(err => console.error("Error loading PDF template:", err));
+  }
 });
 
 async function fetchStudentData() {
@@ -107,6 +118,10 @@ function selectTeacher(teacher, targetElement) {
   locationPanelEl.classList.add('disabled');
   sendAlertBtn.disabled = true;
   renderStudentGrid();
+
+  if (window.innerWidth <= 768) {
+    studentPanelEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
 }
 
 function renderStudentGrid() {
@@ -119,7 +134,7 @@ function renderStudentGrid() {
   matchingStudents.forEach(row => {
     const colA = (row[0] || '').trim();
     const colB = (row[1] || '').trim();
-    const gradeLevel = (row[3] || '').trim(); // Extracting grade level from column D
+    const gradeLevel = (row[3] || '').trim();
     
     const firstLetterB = colB.length > 0 ? colB.charAt(0).toUpperCase() : '';
     const buttonLabel = `${colA} ${firstLetterB}`.trim();
@@ -129,7 +144,6 @@ function renderStudentGrid() {
     btn.className = 'student-btn';
     btn.textContent = buttonLabel;
     
-    // Passing gradeLevel into the selectStudent function
     btn.addEventListener('click', () => selectStudent(fullStudentName, buttonLabel, gradeLevel, btn));
     studentGridEl.appendChild(btn);
   });
@@ -160,6 +174,11 @@ function setupLocationDropdown() {
     if (e.target.value === 'other') {
       otherLocationWrapper.classList.remove('hidden');
       otherLocationInput.focus();
+      if (window.innerWidth <= 768) {
+        setTimeout(() => {
+          otherLocationInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 150);
+      }
     } else {
       otherLocationWrapper.classList.add('hidden');
     }
@@ -210,8 +229,10 @@ sendAlertBtn.addEventListener('click', async () => {
     }
     await Promise.all(requests);
 
-    // Pass the retrieved grade level and location strings to the PDF generator
-    await generateAndDownloadPDF(selectedTeacher, selectedStudent.fullName, selectedStudent.gradeLevel, locationValue);
+    // Generate and download the tracker PDF on desktop only
+    if (!isMobileDevice()) {
+      await generateAndDownloadPDF(selectedTeacher, selectedStudent.fullName, selectedStudent.gradeLevel, locationValue);
+    }
 
     alertStatusEl.style.color = '#137333';
     alertStatusEl.textContent = 'Level 2 Alert Sent!';
@@ -239,7 +260,6 @@ async function generateAndDownloadPDF(teacherName, studentFullName, gradeLevel, 
   const firstPage = pages[0];
   const { height } = firstPage.getSize();
 
-  // 7 text positions mapped to the layout
   const textPositions = [[176, 242], [191, 281], [505, 278], [643, 277], [261, 320], [576, 319], [223, 395]];
   const scale = 1.5;
 
@@ -255,15 +275,14 @@ async function generateAndDownloadPDF(teacherName, studentFullName, gradeLevel, 
   const displayH = h % 12 || 12;
   const timeStr = `${String(displayH).padStart(2, '0')}:${String(m).padStart(2, '0')} ${ampm}`;
 
-  // Mapping the texts directly to the 7 coordinates
   const texts = [
     'Aerospace Elementary',
     studentFullName,
-    gradeLevel, 
+    gradeLevel,
     teacherName,
     dateStr,
     timeStr,
-    locationStr // Assigned to the final [223, 395] coordinate
+    locationStr
   ];
 
   for (let i = 0; i < texts.length; i++) {
