@@ -134,7 +134,7 @@ function renderStudentGrid() {
   matchingStudents.forEach(row => {
     const colA = (row[0] || '').trim();
     const colB = (row[1] || '').trim();
-    const gradeLevel = (row[3] || '').trim();
+    const gradeLevel = (row[3] || '').trim(); // Extracting grade level from column D
     
     const firstLetterB = colB.length > 0 ? colB.charAt(0).toUpperCase() : '';
     const buttonLabel = `${colA} ${firstLetterB}`.trim();
@@ -144,6 +144,7 @@ function renderStudentGrid() {
     btn.className = 'student-btn';
     btn.textContent = buttonLabel;
     
+    // Passing gradeLevel into the selectStudent function
     btn.addEventListener('click', () => selectStudent(fullStudentName, buttonLabel, gradeLevel, btn));
     studentGridEl.appendChild(btn);
   });
@@ -260,6 +261,7 @@ async function generateAndDownloadPDF(teacherName, studentFullName, gradeLevel, 
   const firstPage = pages[0];
   const { height } = firstPage.getSize();
 
+  // 7 text positions mapped to the layout
   const textPositions = [[176, 242], [191, 281], [505, 278], [643, 277], [261, 320], [576, 319], [223, 395]];
   const scale = 1.5;
 
@@ -275,6 +277,7 @@ async function generateAndDownloadPDF(teacherName, studentFullName, gradeLevel, 
   const displayH = h % 12 || 12;
   const timeStr = `${String(displayH).padStart(2, '0')}:${String(m).padStart(2, '0')} ${ampm}`;
 
+  // Mapping the texts directly to the 7 coordinates
   const texts = [
     'Aerospace Elementary',
     studentFullName,
@@ -282,7 +285,7 @@ async function generateAndDownloadPDF(teacherName, studentFullName, gradeLevel, 
     teacherName,
     dateStr,
     timeStr,
-    locationStr
+    locationStr // Assigned to the final [223, 395] coordinate
   ];
 
   for (let i = 0; i < texts.length; i++) {
@@ -312,4 +315,13 @@ async function generateAndDownloadPDF(teacherName, studentFullName, gradeLevel, 
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+// Register Service Worker for PWA installability
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch((err) => {
+      console.error('Service worker registration failed:', err);
+    });
+  });
 }
