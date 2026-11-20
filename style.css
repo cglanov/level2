@@ -13,12 +13,19 @@ body {
   min-height: 100vh;
 }
 
+button,
+select {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 .top-banner {
   background-color: #d93025;
   color: #ffffff;
   text-align: center;
   padding: 18px 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
 }
 
 .top-banner h1 {
@@ -61,6 +68,7 @@ body {
   color: #1a73e8;
   border-bottom: 2px solid #e8eaed;
   padding-bottom: 8px;
+  flex-shrink: 0;
 }
 
 .scrollable-list {
@@ -80,12 +88,18 @@ body {
   cursor: pointer;
   font-weight: 500;
   text-align: left;
-  transition: background-color 0.15s, border-color 0.15s;
+  transition: background-color 0.15s, border-color 0.15s, transform 0.1s;
 }
 
 .teacher-item:hover {
   background-color: #e8f0fe;
   border-color: #1a73e8;
+}
+
+.teacher-item:active,
+.student-btn:active,
+.alert-btn:active:not(:disabled) {
+  transform: scale(0.985);
 }
 
 .teacher-item.selected {
@@ -193,7 +207,7 @@ body {
   font-weight: 700;
   cursor: pointer;
   letter-spacing: 0.5px;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .alert-btn:hover:not(:disabled) {
@@ -211,12 +225,190 @@ body {
   text-align: center;
 }
 
-@media (max-width: 900px) {
+/* Tablet Transition */
+@media (max-width: 960px) {
   .app-container {
     grid-template-columns: 1fr;
   }
-  
+
   .student-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile Portrait / Tall Aspect-Ratio Optimization */
+@media (max-width: 768px) {
+  body {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .top-banner {
+    padding: 12px 16px;
+  }
+
+  .top-banner h1 {
+    font-size: 1.25rem;
+  }
+
+  .app-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 12px 0 12px;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* Split upper viewport between Teacher and Student selection */
+  #panel-teachers,
+  #panel-students {
+    flex: 1 1 0;
+    min-height: 0;
+    padding: 12px;
+  }
+
+  .panel h2 {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+  }
+
+  /* 2-column teacher grid on mobile to reduce vertical scrolling */
+  .scrollable-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    align-content: start;
+    max-height: none;
+    min-height: 0;
+    -webkit-overflow-scrolling: touch;
+    gap: 8px;
+  }
+
+  .scrollable-list .status-msg {
+    grid-column: 1 / -1;
+    margin-top: 0;
+  }
+
+  .teacher-item {
+    min-height: 48px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    word-break: break-word;
+  }
+
+  /* 2-column thumb-friendly student grid */
+  .student-grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-height: none;
+    min-height: 0;
+    -webkit-overflow-scrolling: touch;
+    gap: 8px;
+  }
+
+  .student-btn {
+    min-height: 48px;
+    padding: 10px 12px;
+    font-size: 0.98rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Pinned bottom Location & Alert action bar */
+  #panel-location {
+    flex: 0 0 auto;
+    margin: 0 -12px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    border-top: 1px solid #dadce0;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.08);
+    background-color: #ffffff;
+    z-index: 50;
+  }
+
+  #panel-location.disabled {
+    opacity: 0.55;
+    background-color: #ffffff;
+  }
+
+  #panel-location h2 {
+    display: none;
+  }
+
+  .location-container {
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .location-container label {
+    font-size: 0.85rem;
+  }
+
+  /* 16px font prevents iOS Safari auto-zoom on focus */
+  .select-wrapper select,
+  #other-location-input {
+    min-height: 46px;
+    padding: 10px 12px;
+    font-size: 16px;
+  }
+
+  #other-location-wrapper {
+    margin-top: 4px;
+  }
+
+  .alert-btn {
+    width: 100%;
+    min-height: 52px;
+    padding: 14px 16px;
+    font-size: 1.05rem;
+  }
+
+  .status-msg {
+    margin-top: 8px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Extra-narrow phones (< 340px) use 1 column */
+@media (max-width: 340px) {
+  .scrollable-list,
+  .student-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Landscape phones or active virtual keyboard fallback */
+@media (max-width: 768px) and (max-height: 560px) {
+  body {
+    height: auto;
+    overflow-y: auto;
+  }
+
+  .app-container {
+    overflow: visible;
+  }
+
+  #panel-teachers,
+  #panel-students {
+    flex: none;
+  }
+
+  .scrollable-list,
+  .student-grid {
+    max-height: 200px;
+  }
+
+  #panel-location {
+    position: sticky;
+    bottom: 0;
   }
 }
